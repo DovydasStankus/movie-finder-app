@@ -8,7 +8,7 @@ export default function Layout({ children }) {
       </head>
       <body>
         <main>{children}</main>
-        <footer style={{textAlign: "center"}}>© 2025</footer>
+        <footer style={{textAlign: "center", marginBlock: "20px"}}>© 2025</footer>
       </body>
     </html>
   );

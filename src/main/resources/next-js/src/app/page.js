@@ -4,6 +4,7 @@ import Image from "next/image";
 
 import { useState, useEffect } from 'react';
 
+const MOVIES_PER_PAGE = 5;
 
 export default function Home() {
   const BACKEND_API_URL = "https://imdb.iamidiotareyoutoo.com";
@@ -14,6 +15,19 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(movies.length / MOVIES_PER_PAGE);
+
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
+  const currentMovies = movies.slice(
+    (currentPage - 1) * MOVIES_PER_PAGE,
+    currentPage * MOVIES_PER_PAGE
+  );
 
   const handleSearch = async () => {
     setMovies([]);
@@ -56,51 +70,111 @@ export default function Home() {
 
   return (
     <div>
-      <h1 style={{textAlign: "center"}}>Movie Finder App</h1>
-      <h1 style={{textAlign: "center"}}>Search Movies</h1>
-      <div>
-        <div style={{margin: "auto"}} className="bg-sky-800 rounded-lg">
+      <h1 style={{textAlign: "center", marginTop: "20px"}}>Movie Finder App</h1>
+      <div style={{marginBlock: "20px"}}>
+        <div 
+          style={{display: "flex", margin: "auto", width: "min-content"}}
+          className="bg-gray-200 border border-neutral-100 rounded-lg"
+          >
           <input
-            style={{margin: "5px"}}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search movies"
-            className="bg-sky-200 rounded-lg"
+            className="bg-gray-200 rounded-lg !outline-none h-8"
+            style={{padding: "10px", margin: "auto auto"}}
           />
           <button
-            style={{margin: "5px"}}
             onClick={handleSearch}
-            className="bg-sky-500 rounded-lg"
-            >Search
+            className="bg-gray-300 hover:bg-gray-400 active:bg-gray-100 rounded-lg"
+            >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
           </button>
         </div>
       </div>
 
-      {loading && <div style={{textAlign: "center"}}><p>Loading...</p></div>}
-      {error && <div style={{textAlign: "center"}}><p style={{ color: 'red' }}>{error}</p></div>}
+      {loading && <div style={{textAlign: "center", margin: "15px"}}>
+        <div style={{margin: "auto"}} className="border-4 border-gray-200 border-t-gray-600 rounded-full w-10 h-10 animate-spin"></div>
+      </div>}
+      {error && <div style={{textAlign: "center", margin: "15px"}}><p style={{ color: 'red' }}>{error}</p></div>}
 
       {movies.length > 0 && (
+
         <div style={{textAlign: "center", marginTop: "20px"}}>
-          {movies.map((movie, index) => (
-            <div key={index} style={{ margin: "20px", padding: "10px", gap: "20px"}} className="bg-sky-500 rounded-lg flex">
+          {currentMovies.map((movie, index) => (
+            <div key={index} style={{ margin: "20px", padding: "10px", gap: "20px"}} className="bg-gray-200 border border-neutral-100 rounded-lg flex">
               <img
                 src={movie.img_poster}
                 alt={movie.title}
                 width={128}
-                className="rounded-lg"
+                className="rounded-lg border border-neutral-300"
               />
               <div style={{display: "grid", gridTemplateRows: "auto auto auto 1fr", textAlign: "left", width: "-moz-available"}}>
                 <div><h2>{movie.title}</h2></div>
                 <div><p>Year: {movie.year}</p></div>
                 <div><p>Actors: {movie.actors}</p></div>
-                <div style={{ alignSelf: "end", textAlign: "right" }}><a href={movie.imdb_url} target="_blank" rel="noopener noreferrer">
+                <div 
+                  style={{ alignSelf: "end", textAlign: "right" }}
+                  >
+                    <a 
+                      style={{padding: "5px"}}
+                      href={movie.imdb_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="bg-gray-300 hover:bg-gray-400 active:bg-gray-100 rounded-lg border border-neutral-300"
+                      >
                   View on IMDB
-                </a></div>
+                  </a>
+                </div>
               </div>
             </div>
           ))}
+
+          {/* Pagination Controls */}
+          <div style={{marginBlock: "20px"}}>
+            <div 
+              style={{display: "flex", marginTop: "20px", justifyContent: "center", width: "min-content", margin: "auto", height: "46px"}}
+              
+              className="rounded-lg border border-neutral-100 bg-gray-200"
+              >
+              <button 
+                onClick={() => handlePageChange(currentPage - 1)}
+                
+                className={currentPage > 1 ? "rounded-l-lg bg-gray-200 hover:bg-gray-300 active:bg-gray-100 border-r border-neutral-100" : "rounded-l-lg bg-gray-200 border-r border-neutral-100 text-gray-500"}
+                style={{paddingInline: "4px", width: "80px"}}
+                disabled={currentPage === 1}
+                >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  className={currentPage === i + 1 ? "bg-gray-100 text-zinc-800" : "bg-gray-200 hover:bg-gray-300 active:bg-gray-100"}
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  style={{
+                    paddingInline: "4px",
+                    fontWeight: currentPage === i + 1 ? 'bold' : 'normal',
+                  }}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                className={currentPage < totalPages ? "rounded-r-lg bg-gray-200 hover:bg-gray-300 active:bg-gray-100 border-l border-neutral-100" : "rounded-r-lg bg-gray-200 border-l border-neutral-100 text-gray-500"}
+                style={{paddingInline: "4px", width: "80px"}}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+
         </div>
+
       )}
     </div>
   );
 }
+
