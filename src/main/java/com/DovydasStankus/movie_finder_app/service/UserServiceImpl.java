@@ -28,6 +28,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id);
     }
 
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+    }
+
     // Create or update user
     public User saveUser(User user) {
         return userRepository.save(user);

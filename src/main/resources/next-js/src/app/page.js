@@ -77,7 +77,7 @@ export default function Home() {
 
   return (
     <div>
-      <h1 style={{textAlign: "center", marginTop: "20px", fontWeight: "bold"}}>Movie Finder App</h1>
+      { /*<h1 style={{textAlign: "center", marginTop: "20px", fontWeight: "bold"}}>Movie Finder App</h1>*/ }
       <div style={{marginBlock: "20px"}}>
         <div 
           style={{display: "flex", margin: "auto", width: "min-content"}}
